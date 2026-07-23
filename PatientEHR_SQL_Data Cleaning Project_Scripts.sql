@@ -36,6 +36,7 @@ FROM patients_ehr;
 -- output note: The dataset has a total of 74 rows
 
 -- 2_create_staging 
+-- Staging table is used as the working environment while preserving the original raw dataset.
 DROP TABLE IF EXISTS patients_ehr_stg;
 -- Create staging table with the same structure
 CREATE TABLE patients_ehr_stg
@@ -52,7 +53,7 @@ FROM patients_ehr_stg
 LIMIT 10; 
 
 -- 3_manage_duplicates
--- Find duplicates using CTE and ROW_NUMBER()
+-- Find duplicates using CTE, ROW_NUMBER() and PARTITION BY()
 WITH duplicate_cte AS 
 (
 SELECT *, 
@@ -72,9 +73,9 @@ FROM patients_ehr_stg
 SELECT *
 FROM  duplicate_cte
 WHERE row_num >1;
- -- OUTPUT NOTE: 2 duplicate rows. 
+ -- OUTPUT NOTE: identified 2 duplicated rows. 
 
- -- Delete duplicate 
+ -- Remove duplicate rows 
 ALTER TABLE patients_ehr_stg
 ADD COLUMN row_id SERIAL;
 
@@ -99,7 +100,7 @@ WHERE row_id IN (
     WHERE row_num > 1
 );
 
--- Verify duplicate were removed: 
+-- Verify duplicate rows were removed: 
 SELECT COUNT(*) 
 FROM patients_ehr_stg; 
 
@@ -130,7 +131,8 @@ SELECT date_of_birth
 FROM patients_ehr_stg;  
 -- Output note: Majority in the format YYYY-MM-DD; some in DD-MM-YYYY
 
---= Standardize 'date_of_birth' 
+--= Standardize 'date_of_birth'
+-- create a new date_of_birth column 
 ALTER TABLE patients_ehr_stg
 ADD COLUMN date_of_birth_clean DATE;
 
