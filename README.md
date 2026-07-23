@@ -50,4 +50,32 @@ Original dataset size:
 
 ---
 
+## SQL Skills Demonstrated
 
+### Database Operations
+CREATE TABLE
+DROP TABLE
+ALTER TABLE
+INSERT INTO
+UPDATE
+DELETE
+
+### Data Cleaning Techniques
+Duplicate detection
+Missing value handling
+Data type conversion
+Date parsing
+Data validation
+
+### Advanced SQL
+Common Table Expressions (CTEs)
+Window Functions
+ROW_NUMBER()
+CASE Statements
+Pattern Matching
+Type Casting
+PostgreSQL Functions
+TO_DATE()
+LENGTH()
+DATE arithmetic
+NUMERIC casting
