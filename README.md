@@ -27,6 +27,7 @@ Analyze healthcare patient records using PostgreSQL.
 - CTEs
 - Window functions
 - ROW_NUMBER()
+- CASE
 - Data cleaning
 - Aggregations
 - Joins
