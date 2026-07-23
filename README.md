@@ -50,11 +50,4 @@ Original dataset size:
 
 ---
 
-# Data Cleaning Workflow
 
-## 1. Create Raw Table
-
-Created a raw import table with original datatypes preserved.
-
-```sql
-patients_ehr
