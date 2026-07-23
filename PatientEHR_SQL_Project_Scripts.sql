@@ -1,18 +1,18 @@
 /*
-Patient EHR Project
+Patient EHR Data Cleaning Project
 
     ├── 01_create_raw_table and import cvs
     ├── 02_create_staging
     ├── 03_manage_duplicates
     ├── 04_standardize_data
-    |       ├── a. manage inconsistant input in'gender'
+    	    ├── a. manage inconsistant input in'gender'
             ├── b. manage inconsistant DATE in 'date_of_birth'
 			├── c. Manage inconsistant DATE in 'admission_date'
-			├──
-			├── 
-    ├── 05_
-    ├── 06_data_quality_checks
-    └── 07_business_analysis
+			├── d.Standardize zip_code to INTEGER 
+			
+    ├── 05_Handle Missing Values
+    ├── 06_Remove Unnecessary Columns
+    
  */
 
 -- 1_create_raw_table
@@ -196,6 +196,23 @@ WHERE LENGTH(zip_code) != 5;
 SELECT zip_code
 FROM patients_ehr_stg;
 
+-- Handle Missing Value
+
+-- 5. check for missing values:
+SELECT *
+FROM patients_ehr_stg
+WHERE 
+    patient_id IS NULL OR patient_id = ''
+    OR date_of_birth IS NULL OR date_of_birth = ''
+    OR gender IS NULL OR gender = ''
+    OR zip_code IS NULL OR zip_code = ''
+    OR primary_condition IS NULL OR primary_condition = ''
+    OR admission_date IS NULL OR admission_date = '';
+
+	-- Output note: date_of_birth and zip_code, both have 3 null values. 	
+	-- Will not take further action on null until analysis require so. 
 
 
-
+-- 6. Remove Unnecessary Columns
+ALTER TABLE patients_ehr_stg
+DROP COLUMNS data_of_birth, gender, zip_code
