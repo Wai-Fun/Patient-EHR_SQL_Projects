@@ -5,8 +5,11 @@ Patient EHR Project
     ├── 02_create_staging
     ├── 03_manage_duplicates
     ├── 04_standardize_data
-    |        |- a. manage inconsistant input in'gender'
-             |- b. 
+    |       ├── a. manage inconsistant input in'gender'
+            ├── b. manage inconsistant DATE in 'date_of_birth'
+			├── c. Manage inconsistant DATE in 'admission_date'
+			├──
+			├── 
     ├── 05_
     ├── 06_data_quality_checks
     └── 07_business_analysis
@@ -119,4 +122,80 @@ END;
 --Verify UPDATE
 SELECT DISTINCT gender
 FROM patients_ehr_stg; 
+
+
+--4b. Standardize DATE for date_of_birth 
+-- inspect 'date_of_birth' 
+SELECT date_of_birth
+FROM patients_ehr_stg;  
+-- Output note: Majority in the format YYYY-MM-DD; some in DD-MM-YYYY
+
+--= Standardize 'date_of_birth' 
+ALTER TABLE patients_ehr_stg
+ADD COLUMN date_of_birth_clean DATE;
+
+UPDATE patients_ehr_stg
+SET date_of_birth_clean =
+    CASE
+        WHEN date_of_birth LIKE '__-__-____'
+            THEN TO_DATE(date_of_birth, 'DD-MM-YYYY')
+        ELSE
+            TO_DATE(date_of_birth, 'YYYY-MM-DD')
+    END;
+
+-- Verify update
+SELECT date_of_birth_clean
+FROM patients_ehr_stg;   
+
+-- Check the range of date_of_birth_clean: 
+SELECT 
+    MAX(date_of_birth_clean) AS latest_dob,
+    MIN(date_of_birth_clean) AS earliest_dob
+FROM patients_ehr_stg;
+-- Output note: there is not out of range DOB 
+
+--4c. Standardize DATE for 'admission_date'
+-- inspect 'admission_date' 
+SELECT admission_date
+FROM patients_ehr_stg;  
+-- Output note: Two input appeared to be excel seriel date number: 45258, 45439.00 
+
+ALTER TABLE patients_ehr_stg
+ADD COLUMN admission_date_clean DATE;
+
+UPDATE patients_ehr_stg
+SET admission_date_clean =
+    CASE
+        WHEN admission_date LIKE '%-%'
+            THEN TO_DATE(admission_date, 'DD-MM-YYYY')
+        ELSE
+            DATE '1899-12-30' + admission_date::NUMERIC::INTEGER
+    END;
+
+-- Verify Changes
+SELECT admission_date_clean
+FROM patients_ehr_stg;  
+
+--4d. Standardize zip_code to INTEGER 
+ALTER TABLE patients_ehr_stg
+ADD COLUMN zip_code_clean INTEGER;
+
+UPDATE patients_ehr_stg
+	-- cast zip_code from numeric to integer and then to text (in case the zip_code start with 0)
+SET zip_code_clean = zip_code::NUMERIC::INTEGER::TEXT; 
+
+-- Check if any zip_code is not 5 digit
+SELECT 
+    zip_code,
+    LENGTH(zip_code) AS len_zip_code
+FROM patients_ehr_stg
+WHERE LENGTH(zip_code) != 5;
+-- output note: All zip code are 5 digit. 
+
+-- Verify change
+SELECT zip_code
+FROM patients_ehr_stg;
+
+
+
 
